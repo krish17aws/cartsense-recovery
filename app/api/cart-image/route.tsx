@@ -43,11 +43,11 @@ export async function GET(request: Request) {
           CARTSENSE RECOVERY
         </div>
         <div style={{ fontSize: 24, color: "#b8d1c7" }}>
-          {cart.itemCount} items
+          {`${cart.itemCount} items`}
         </div>
       </div>
       <div style={{ fontSize: 48, fontWeight: 700, marginTop: 28 }}>
-        {cart.customerName}&apos;s cart is waiting
+        {`${cart.customerName}'s cart is waiting`}
       </div>
       <div
         style={{
@@ -70,17 +70,17 @@ export async function GET(request: Request) {
             }}
           >
             <span>
-              {item.name} × {item.quantity}
+              {`${item.name} × ${item.quantity}`}
             </span>
             <strong>
-              ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+              {`₹${(item.price * item.quantity).toLocaleString("en-IN")}`}
             </strong>
           </div>
         ))}
       </div>
       {items.length > 5 && (
         <div style={{ fontSize: 20, color: "#b8d1c7", marginTop: 14 }}>
-          + {items.length - 5} more products
+          {`+ ${items.length - 5} more products`}
         </div>
       )}
       <div
@@ -97,7 +97,7 @@ export async function GET(request: Request) {
           Complete your purchase
         </span>
         <strong style={{ fontSize: 52, color: "#d8f56f" }}>
-          ₹{cart.cartTotal.toLocaleString("en-IN")}
+          {`₹${cart.cartTotal.toLocaleString("en-IN")}`}
         </strong>
       </div>
     </div>,
