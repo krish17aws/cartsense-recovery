@@ -1,4 +1,4 @@
-import { ImageResponse } from "@vercel/og";
+import { ImageResponse } from "next/og";
 import { eq } from "drizzle-orm";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
