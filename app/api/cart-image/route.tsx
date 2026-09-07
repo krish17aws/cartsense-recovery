@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+/* eslint-disable @next/next/no-img-element -- Satori renders remote cart thumbnails into the generated PNG */
 import { eq } from "drizzle-orm";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
@@ -17,6 +18,7 @@ export async function GET(request: Request) {
     name: string;
     quantity: number;
     price: number;
+    image?: string;
   }>;
   const shown = items.slice(0, 5);
   return new ImageResponse(
@@ -69,6 +71,15 @@ export async function GET(request: Request) {
               fontSize: 24,
             }}
           >
+            {item.image && (
+              <img
+                src={item.image}
+                width="76"
+                height="58"
+                style={{ objectFit: "cover", borderRadius: 8, marginRight: 14 }}
+                alt=""
+              />
+            )}
             <span>
               {`${item.name} × ${item.quantity}`}
             </span>

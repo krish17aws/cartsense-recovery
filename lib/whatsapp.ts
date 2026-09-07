@@ -19,13 +19,21 @@ export async function sendCartWhatsApp(cart:CartMessage, options:{message?:strin
     throw new Error("APP_BASE_URL must be your public HTTPS Vercel URL. Meta cannot download a cart image from localhost.");
   }
   const firstName = cart.customerName.split(" ")[0];
-  const analysis = cart.analysisJson ? JSON.parse(cart.analysisJson) as {reasoning?:string} : null;
-  const message = options.message ?? (options.removeCoupon ? null : analysis?.reasoning) ?? "Your cart is still waiting. Complete your purchase before the items are gone.";
+  const analysis = cart.analysisJson ? JSON.parse(cart.analysisJson) as {reasoning?:string;couponPercent?:number;discountAmount?:number;couponCode?:string} : null;
+  const couponCode = analysis?.couponCode || (analysis?.couponPercent ? `${cart.userId.toUpperCase()}20` : analysis?.discountAmount ? "WELCOME100" : "");
+  const approvedOffer = !options.removeCoupon && couponCode
+    ? analysis?.couponPercent
+      ? `Your approved ${analysis.couponPercent}% recovery coupon is ${couponCode}. Apply it at checkout before it expires.`
+      : analysis?.discountAmount
+        ? `Your ₹${analysis.discountAmount} welcome coupon is ${couponCode}. Apply it at checkout before it expires.`
+        : null
+    : null;
+  const message = options.message ?? approvedOffer ?? (options.removeCoupon ? null : analysis?.reasoning) ?? "Your cart is still waiting. Complete your purchase before the items are gone.";
   const imageUrl = `${baseUrl}/api/cart-image?userId=${encodeURIComponent(cart.userId)}`;
   const payload = { messaging_product:"whatsapp", to:recipient, type:"template", template:{ name:template, language:{code:language}, components:[
     {type:"header",parameters:[{type:"image",image:{link:imageUrl}}]},
     {type:"body",parameters:[{type:"text",text:firstName},{type:"text",text:`₹${cart.cartTotal.toLocaleString("en-IN")}`},{type:"text",text:message}]},
-    {type:"button",sub_type:"url",index:"0",parameters:[{type:"text",text:cart.userId}]}
+    {type:"button",sub_type:"url",index:"0",parameters:[{type:"text",text:`${cart.userId}:${options.removeCoupon ? "" : couponCode}`}]}
   ]}};
   const response = await fetch(`https://graph.facebook.com/${version}/${phoneId}/messages`, {method:"POST",headers:{Authorization:`Bearer ${token}`,"Content-Type":"application/json"},body:JSON.stringify(payload)});
   const data = await response.json() as {messages?:Array<{id:string}>; error?:MetaError};

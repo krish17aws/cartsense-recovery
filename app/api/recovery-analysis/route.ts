@@ -13,6 +13,7 @@ type Analysis = {
   recommendation: string;
   couponPercent: number;
   discountAmount: number;
+  couponCode: string;
   confidence: number;
   reasoning: string;
   risk: string;
@@ -134,6 +135,11 @@ export async function POST(request: Request) {
           : "SEND_REMINDER",
     couponPercent: cart.cartTotal >= 7000 && !isNew ? 20 : 0,
     discountAmount: welcomeEligible ? 100 : 0,
+    couponCode: welcomeEligible
+      ? "WELCOME100"
+      : cart.cartTotal >= 7000 && !isNew
+        ? `${cart.userId.toUpperCase()}20`
+        : "",
     confidence,
     reasoning: welcomeEligible
       ? "This first-purchase cart qualifies for the fixed ₹100 welcome offer."
@@ -204,7 +210,9 @@ export async function POST(request: Request) {
       recommendation: welcomeEligible
         ? "SEND_WELCOME_100"
         : "SEND_REMINDER_NO_DISCOUNT",
+      couponCode: welcomeEligible ? "WELCOME100" : "",
     };
+  analysis.couponCode = fallback.couponCode;
   await db
     .update(cartSnapshots)
     .set({

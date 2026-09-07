@@ -50,6 +50,7 @@ type Analysis = {
   recommendation: string;
   couponPercent: number;
   discountAmount?: number;
+  couponCode?: string;
   confidence: number;
   reasoning: string;
   risk: string;
@@ -606,6 +607,9 @@ export default function Overview() {
                       ? "The recommendation exceeds the 15% limit, so sending is paused for your approval."
                       : "The recommendation is within policy and can send automatically."}
                   </p>
+                  {analysis.couponCode && (
+                    <p>Coupon code: <strong>{analysis.couponCode}</strong></p>
+                  )}
                 </div>
                 <div className="message-sample">
                   <MessageCircleMore />

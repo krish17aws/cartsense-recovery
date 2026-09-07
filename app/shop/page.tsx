@@ -268,7 +268,11 @@ export default function Shop() {
     [category, setCategory] = useState("All"),
     [open, setOpen] = useState(false),
     [ordered, setOrdered] = useState(false),
-    [page, setPage] = useState(1);
+    [page, setPage] = useState(1),
+    [couponInput, setCouponInput] = useState(""),
+    [eligibleCoupon, setEligibleCoupon] = useState<{code:string;percent:number;amount:number}|null>(null),
+    [appliedCoupon, setAppliedCoupon] = useState<{code:string;percent:number;amount:number}|null>(null),
+    [couponMessage, setCouponMessage] = useState("");
   const perPage = 20;
   const filtered = products.filter(
     (p) =>
@@ -281,8 +285,40 @@ export default function Shop() {
       () => products.reduce((s, p) => s + (cart[p.id] || 0) * p.price, 0),
       [cart],
     );
+  const discount = appliedCoupon
+    ? appliedCoupon.percent
+      ? Math.round(total * appliedCoupon.percent / 100)
+      : Math.min(total, appliedCoupon.amount)
+    : 0;
+  const payable = Math.max(0, total - discount);
   const change = (id: number, by: number) =>
     setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] || 0) + by) }));
+  useEffect(() => {
+    const recovery = new URLSearchParams(window.location.search).get("recovery");
+    if (!recovery) return;
+    const [userId, couponCode = ""] = decodeURIComponent(recovery).split(":");
+    const recoveredUser = users.find((candidate) => candidate.id === userId);
+    if (!recoveredUser) return;
+    void fetch("/api/cart-snapshots", { cache: "no-store" })
+      .then(async (response) => {
+        const data = await response.json() as {carts?:Array<{userId:string;itemsJson:string;analysisJson?:string;status:string}>;error?:string};
+        if (!response.ok) throw new Error(data.error ?? "Unable to restore cart");
+        const saved = data.carts?.find((row) => row.userId === userId);
+        if (!saved) throw new Error("Saved recovery cart not found");
+        setUser(recoveredUser);
+        const savedItems = JSON.parse(saved.itemsJson) as Array<{id:number;quantity:number}>;
+        setCart(Object.fromEntries(savedItems.map((item) => [item.id, item.quantity])));
+        const analysis = saved.analysisJson ? JSON.parse(saved.analysisJson) as {couponCode?:string;couponPercent?:number;discountAmount?:number} : null;
+        const storedCode = analysis?.couponCode || (analysis?.couponPercent ? `${userId.toUpperCase()}20` : analysis?.discountAmount ? "WELCOME100" : "");
+        if (couponCode && storedCode === couponCode && saved.status === "sent") {
+          const offer = {code:couponCode,percent:Number(analysis?.couponPercent ?? 0),amount:Number(analysis?.discountAmount ?? 0)};
+          setEligibleCoupon(offer);
+          setCouponInput(couponCode);
+        }
+        setOpen(true);
+      })
+      .catch((error) => setCouponMessage(error instanceof Error ? error.message : "Unable to restore cart"));
+  }, []);
   useEffect(() => {
     if (!user) return;
     const items = products
@@ -292,6 +328,7 @@ export default function Shop() {
         name: p.name,
         quantity: cart[p.id],
         price: p.price,
+        image: p.image,
       }));
     const lastActivityAt = new Date(
       Date.now() - (user.id === "rahul" && count > 0 ? 4 * 60 * 60 * 1000 : 0),
@@ -551,9 +588,30 @@ export default function Shop() {
                 <div className="cart-total">
                   <span>Subtotal</span>
                   <strong>{money(total)}</strong>
+                  {appliedCoupon && (
+                    <>
+                      <span>Coupon {appliedCoupon.code}</span>
+                      <strong>−{money(discount)}</strong>
+                      <span>Amount to pay</span>
+                      <strong>{money(payable)}</strong>
+                    </>
+                  )}
                   <small>
                     Taxes included. Shipping calculated at checkout.
                   </small>
+                </div>
+                <div className="coupon-entry">
+                  <input value={couponInput} onChange={(event) => setCouponInput(event.target.value.toUpperCase())} placeholder="Enter coupon code" />
+                  <button onClick={() => {
+                    if (eligibleCoupon && couponInput.trim() === eligibleCoupon.code) {
+                      setAppliedCoupon(eligibleCoupon);
+                      setCouponMessage("Coupon applied successfully");
+                    } else {
+                      setAppliedCoupon(null);
+                      setCouponMessage("Coupon is invalid, expired or not approved for this customer");
+                    }
+                  }}>Apply</button>
+                  {couponMessage && <span>{couponMessage}</span>}
                 </div>
                 <button
                   className="checkout"
