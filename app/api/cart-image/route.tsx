@@ -1,8 +1,24 @@
 import { ImageResponse } from "next/og";
+/* eslint-disable @next/next/no-img-element -- next/og requires a plain img element for embedded cart thumbnails */
 import { eq } from "drizzle-orm";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
-import { productAccent, productEmoji } from "../../../lib/product-visual";
+
+async function inlineProductImage(requestUrl: string, productId?: number) {
+  if (!productId) return undefined;
+  try {
+    const imageUrl = new URL(`/products/${productId}.webp`, requestUrl);
+    const response = await fetch(imageUrl, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(5_000),
+    });
+    if (!response.ok) return undefined;
+    const bytes = Buffer.from(await response.arrayBuffer());
+    return `data:image/webp;base64,${bytes.toString("base64")}`;
+  } catch {
+    return undefined;
+  }
+}
 
 export async function GET(request: Request) {
   await ensureDb();
@@ -15,12 +31,18 @@ export async function GET(request: Request) {
     .limit(1);
   if (!cart) return new Response("Cart not found", { status: 404 });
   const items = JSON.parse(cart.itemsJson) as Array<{
+    id?: number;
     name: string;
     quantity: number;
     price: number;
     image?: string;
   }>;
-  const shown = items.slice(0, 5);
+  const shown = await Promise.all(
+    items.slice(0, 5).map(async (item) => ({
+      ...item,
+      embeddedImage: await inlineProductImage(request.url, item.id),
+    })),
+  );
   return new ImageResponse(
     <div
       style={{
@@ -71,9 +93,15 @@ export async function GET(request: Request) {
               fontSize: 24,
             }}
           >
-            <div style={{width:76,height:58,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:8,marginRight:14,background:productAccent(item.name),fontSize:32}}>
-              {productEmoji(item.name)}
-            </div>
+            {item.embeddedImage && (
+              <img
+                src={item.embeddedImage}
+                width="76"
+                height="58"
+                style={{objectFit:"cover",borderRadius:8,marginRight:14}}
+                alt=""
+              />
+            )}
             <span>
               {`${item.name} × ${item.quantity}`}
             </span>
