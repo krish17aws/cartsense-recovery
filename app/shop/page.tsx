@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element -- catalogue images are dynamic remote demo assets */
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import productCatalog from "../../data/product-catalog.json";
 import {
   ArrowRight,
   Check,
@@ -244,16 +245,13 @@ const catalog = [
     "toy",
   ],
 ] as const;
-const products = catalog.flatMap(([category, names], ci) =>
-  names.map((name, ni) => ({
-    id: ci * 10 + ni + 1,
-    name,
-    category,
-    price: 399 + (((ci * 10 + ni) * 337) % 7600),
-    rating: (4.1 + ((ci + ni) % 8) / 10).toFixed(1),
-    image: `/products/${ci * 10 + ni + 1}.webp`,
-  })),
-);
+const products = productCatalog;
+const productCategories = [
+  ...new Set([
+    ...products.map((product) => product.category),
+    ...catalog.slice(0, 0).map(([category]) => category),
+  ]),
+];
 const money = (n: number) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -456,7 +454,7 @@ export default function Shop() {
           </Link>
         </div>
         <div className="category-row">
-          {["All", ...catalog.map((c) => c[0])].map((c) => (
+          {["All", ...productCategories].map((c) => (
             <button
               key={c}
               className={category === c ? "active" : ""}

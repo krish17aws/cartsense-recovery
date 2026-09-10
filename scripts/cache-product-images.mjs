@@ -2,35 +2,41 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
-const source = await readFile("app/shop/page.tsx", "utf8");
-const start = source.indexOf("const catalog =") + "const catalog =".length;
-const end = source.indexOf("] as const;", start) + 1;
-const catalog = Function(`return (${source.slice(start, end)})`)();
-const products = catalog.flatMap(([category, names], categoryIndex) =>
-  names.map((name, nameIndex) => ({
-    id: categoryIndex * 10 + nameIndex + 1,
-    name,
-    category,
-    lock: categoryIndex * 10 + nameIndex + 301,
-  })),
-);
+const databasePath = process.env.DUMMYJSON_PRODUCTS_FILE ||
+  "/workspace/scratch/97f16ec8b96a/dummyjson-source/database/products.json";
+const sourceProducts = JSON.parse(await readFile(databasePath, "utf8")).slice(0, 100);
+const products = sourceProducts.map((product, index) => ({
+  id: index + 1,
+  name: product.title,
+  category: product.category.split("-").map((word) => word[0].toUpperCase() + word.slice(1)).join(" "),
+  price: Math.max(199, Math.round(Number(product.price) * 83)),
+  rating: Number(product.rating).toFixed(1),
+  image: `/products/${index + 1}.webp`,
+  sourceImage: product.thumbnail,
+}));
 
 await mkdir("public/products", { recursive: true });
+await mkdir("data", { recursive: true });
+await writeFile("data/product-catalog.json", JSON.stringify(products.map((product) => ({
+  id: product.id,
+  name: product.name,
+  category: product.category,
+  price: product.price,
+  rating: product.rating,
+  image: product.image,
+})), null, 2));
 
 async function download(product) {
-  const query = encodeURIComponent(`${product.name},${product.category}`.replaceAll(" ", ","));
-  const response = await fetch(`https://loremflickr.com/700/540/${query}?lock=${product.lock}`, {
-    signal: AbortSignal.timeout(45_000),
-  });
+  const response = await fetch(product.sourceImage, { signal: AbortSignal.timeout(60_000) });
   if (!response.ok) throw new Error(`${product.name}: HTTP ${response.status}`);
   const output = await sharp(Buffer.from(await response.arrayBuffer()))
-    .resize(560, 420, { fit: "cover" })
-    .webp({ quality: 76 })
+    .resize(560, 420, { fit: "contain", background: "#eef5f1" })
+    .webp({ quality: 82 })
     .toBuffer();
   await writeFile(path.join("public/products", `${product.id}.webp`), output);
   process.stdout.write(`✓ ${product.id} ${product.name}\n`);
 }
 
-for (let index = 0; index < products.length; index += 10) {
-  await Promise.all(products.slice(index, index + 10).map(download));
+for (let index = 0; index < products.length; index += 20) {
+  await Promise.all(products.slice(index, index + 20).map(download));
 }

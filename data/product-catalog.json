@@ -1,0 +1,802 @@
+[
+  {
+    "id": 1,
+    "name": "Essence Mascara Lash Princess",
+    "category": "Beauty",
+    "price": 829,
+    "rating": "2.6",
+    "image": "/products/1.webp"
+  },
+  {
+    "id": 2,
+    "name": "Eyeshadow Palette with Mirror",
+    "category": "Beauty",
+    "price": 1659,
+    "rating": "2.9",
+    "image": "/products/2.webp"
+  },
+  {
+    "id": 3,
+    "name": "Powder Canister",
+    "category": "Beauty",
+    "price": 1244,
+    "rating": "4.6",
+    "image": "/products/3.webp"
+  },
+  {
+    "id": 4,
+    "name": "Red Lipstick",
+    "category": "Beauty",
+    "price": 1078,
+    "rating": "4.4",
+    "image": "/products/4.webp"
+  },
+  {
+    "id": 5,
+    "name": "Red Nail Polish",
+    "category": "Beauty",
+    "price": 746,
+    "rating": "4.3",
+    "image": "/products/5.webp"
+  },
+  {
+    "id": 6,
+    "name": "Calvin Klein CK One",
+    "category": "Fragrances",
+    "price": 4149,
+    "rating": "4.4",
+    "image": "/products/6.webp"
+  },
+  {
+    "id": 7,
+    "name": "Chanel Coco Noir Eau De",
+    "category": "Fragrances",
+    "price": 10789,
+    "rating": "4.3",
+    "image": "/products/7.webp"
+  },
+  {
+    "id": 8,
+    "name": "Dior J'adore",
+    "category": "Fragrances",
+    "price": 7469,
+    "rating": "3.8",
+    "image": "/products/8.webp"
+  },
+  {
+    "id": 9,
+    "name": "Dolce Shine Eau de",
+    "category": "Fragrances",
+    "price": 5809,
+    "rating": "4.0",
+    "image": "/products/9.webp"
+  },
+  {
+    "id": 10,
+    "name": "Gucci Bloom Eau de",
+    "category": "Fragrances",
+    "price": 6639,
+    "rating": "2.7",
+    "image": "/products/10.webp"
+  },
+  {
+    "id": 11,
+    "name": "Annibale Colombo Bed",
+    "category": "Furniture",
+    "price": 157699,
+    "rating": "4.8",
+    "image": "/products/11.webp"
+  },
+  {
+    "id": 12,
+    "name": "Annibale Colombo Sofa",
+    "category": "Furniture",
+    "price": 207499,
+    "rating": "3.9",
+    "image": "/products/12.webp"
+  },
+  {
+    "id": 13,
+    "name": "Bedside Table African Cherry",
+    "category": "Furniture",
+    "price": 24899,
+    "rating": "2.9",
+    "image": "/products/13.webp"
+  },
+  {
+    "id": 14,
+    "name": "Knoll Saarinen Executive Conference Chair",
+    "category": "Furniture",
+    "price": 41499,
+    "rating": "4.9",
+    "image": "/products/14.webp"
+  },
+  {
+    "id": 15,
+    "name": "Wooden Bathroom Sink With Mirror",
+    "category": "Furniture",
+    "price": 66399,
+    "rating": "3.6",
+    "image": "/products/15.webp"
+  },
+  {
+    "id": 16,
+    "name": "Apple",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "4.2",
+    "image": "/products/16.webp"
+  },
+  {
+    "id": 17,
+    "name": "Beef Steak",
+    "category": "Groceries",
+    "price": 1078,
+    "rating": "4.5",
+    "image": "/products/17.webp"
+  },
+  {
+    "id": 18,
+    "name": "Cat Food",
+    "category": "Groceries",
+    "price": 746,
+    "rating": "3.1",
+    "image": "/products/18.webp"
+  },
+  {
+    "id": 19,
+    "name": "Chicken Meat",
+    "category": "Groceries",
+    "price": 829,
+    "rating": "3.2",
+    "image": "/products/19.webp"
+  },
+  {
+    "id": 20,
+    "name": "Cooking Oil",
+    "category": "Groceries",
+    "price": 414,
+    "rating": "4.8",
+    "image": "/products/20.webp"
+  },
+  {
+    "id": 21,
+    "name": "Cucumber",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "4.1",
+    "image": "/products/21.webp"
+  },
+  {
+    "id": 22,
+    "name": "Dog Food",
+    "category": "Groceries",
+    "price": 912,
+    "rating": "4.5",
+    "image": "/products/22.webp"
+  },
+  {
+    "id": 23,
+    "name": "Eggs",
+    "category": "Groceries",
+    "price": 248,
+    "rating": "2.5",
+    "image": "/products/23.webp"
+  },
+  {
+    "id": 24,
+    "name": "Fish Steak",
+    "category": "Groceries",
+    "price": 1244,
+    "rating": "3.8",
+    "image": "/products/24.webp"
+  },
+  {
+    "id": 25,
+    "name": "Green Bell Pepper",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "3.3",
+    "image": "/products/25.webp"
+  },
+  {
+    "id": 26,
+    "name": "Green Chili Pepper",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "3.7",
+    "image": "/products/26.webp"
+  },
+  {
+    "id": 27,
+    "name": "Honey Jar",
+    "category": "Groceries",
+    "price": 580,
+    "rating": "4.0",
+    "image": "/products/27.webp"
+  },
+  {
+    "id": 28,
+    "name": "Ice Cream",
+    "category": "Groceries",
+    "price": 456,
+    "rating": "3.4",
+    "image": "/products/28.webp"
+  },
+  {
+    "id": 29,
+    "name": "Juice",
+    "category": "Groceries",
+    "price": 331,
+    "rating": "3.9",
+    "image": "/products/29.webp"
+  },
+  {
+    "id": 30,
+    "name": "Kiwi",
+    "category": "Groceries",
+    "price": 207,
+    "rating": "4.9",
+    "image": "/products/30.webp"
+  },
+  {
+    "id": 31,
+    "name": "Lemon",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "3.5",
+    "image": "/products/31.webp"
+  },
+  {
+    "id": 32,
+    "name": "Milk",
+    "category": "Groceries",
+    "price": 290,
+    "rating": "2.6",
+    "image": "/products/32.webp"
+  },
+  {
+    "id": 33,
+    "name": "Mulberry",
+    "category": "Groceries",
+    "price": 414,
+    "rating": "5.0",
+    "image": "/products/33.webp"
+  },
+  {
+    "id": 34,
+    "name": "Nescafe Coffee",
+    "category": "Groceries",
+    "price": 663,
+    "rating": "4.8",
+    "image": "/products/34.webp"
+  },
+  {
+    "id": 35,
+    "name": "Potatoes",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "4.8",
+    "image": "/products/35.webp"
+  },
+  {
+    "id": 36,
+    "name": "Protein Powder",
+    "category": "Groceries",
+    "price": 1659,
+    "rating": "4.2",
+    "image": "/products/36.webp"
+  },
+  {
+    "id": 37,
+    "name": "Red Onions",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "4.2",
+    "image": "/products/37.webp"
+  },
+  {
+    "id": 38,
+    "name": "Rice",
+    "category": "Groceries",
+    "price": 497,
+    "rating": "3.2",
+    "image": "/products/38.webp"
+  },
+  {
+    "id": 39,
+    "name": "Soft Drinks",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "4.8",
+    "image": "/products/39.webp"
+  },
+  {
+    "id": 40,
+    "name": "Strawberry",
+    "category": "Groceries",
+    "price": 331,
+    "rating": "3.1",
+    "image": "/products/40.webp"
+  },
+  {
+    "id": 41,
+    "name": "Tissue Paper Box",
+    "category": "Groceries",
+    "price": 207,
+    "rating": "2.7",
+    "image": "/products/41.webp"
+  },
+  {
+    "id": 42,
+    "name": "Water",
+    "category": "Groceries",
+    "price": 199,
+    "rating": "5.0",
+    "image": "/products/42.webp"
+  },
+  {
+    "id": 43,
+    "name": "Decoration Swing",
+    "category": "Home Decoration",
+    "price": 4979,
+    "rating": "3.2",
+    "image": "/products/43.webp"
+  },
+  {
+    "id": 44,
+    "name": "Family Tree Photo Frame",
+    "category": "Home Decoration",
+    "price": 2489,
+    "rating": "4.5",
+    "image": "/products/44.webp"
+  },
+  {
+    "id": 45,
+    "name": "House Showpiece Plant",
+    "category": "Home Decoration",
+    "price": 3319,
+    "rating": "4.7",
+    "image": "/products/45.webp"
+  },
+  {
+    "id": 46,
+    "name": "Plant Pot",
+    "category": "Home Decoration",
+    "price": 1244,
+    "rating": "3.0",
+    "image": "/products/46.webp"
+  },
+  {
+    "id": 47,
+    "name": "Table Lamp",
+    "category": "Home Decoration",
+    "price": 4149,
+    "rating": "3.5",
+    "image": "/products/47.webp"
+  },
+  {
+    "id": 48,
+    "name": "Bamboo Spatula",
+    "category": "Kitchen Accessories",
+    "price": 663,
+    "rating": "3.3",
+    "image": "/products/48.webp"
+  },
+  {
+    "id": 49,
+    "name": "Black Aluminium Cup",
+    "category": "Kitchen Accessories",
+    "price": 497,
+    "rating": "4.5",
+    "image": "/products/49.webp"
+  },
+  {
+    "id": 50,
+    "name": "Black Whisk",
+    "category": "Kitchen Accessories",
+    "price": 829,
+    "rating": "3.9",
+    "image": "/products/50.webp"
+  },
+  {
+    "id": 51,
+    "name": "Boxed Blender",
+    "category": "Kitchen Accessories",
+    "price": 3319,
+    "rating": "4.6",
+    "image": "/products/51.webp"
+  },
+  {
+    "id": 52,
+    "name": "Carbon Steel Wok",
+    "category": "Kitchen Accessories",
+    "price": 2489,
+    "rating": "4.0",
+    "image": "/products/52.webp"
+  },
+  {
+    "id": 53,
+    "name": "Chopping Board",
+    "category": "Kitchen Accessories",
+    "price": 1078,
+    "rating": "3.7",
+    "image": "/products/53.webp"
+  },
+  {
+    "id": 54,
+    "name": "Citrus Squeezer Yellow",
+    "category": "Kitchen Accessories",
+    "price": 746,
+    "rating": "4.6",
+    "image": "/products/54.webp"
+  },
+  {
+    "id": 55,
+    "name": "Egg Slicer",
+    "category": "Kitchen Accessories",
+    "price": 580,
+    "rating": "3.1",
+    "image": "/products/55.webp"
+  },
+  {
+    "id": 56,
+    "name": "Electric Stove",
+    "category": "Kitchen Accessories",
+    "price": 4149,
+    "rating": "4.1",
+    "image": "/products/56.webp"
+  },
+  {
+    "id": 57,
+    "name": "Fine Mesh Strainer",
+    "category": "Kitchen Accessories",
+    "price": 829,
+    "rating": "3.0",
+    "image": "/products/57.webp"
+  },
+  {
+    "id": 58,
+    "name": "Fork",
+    "category": "Kitchen Accessories",
+    "price": 331,
+    "rating": "3.1",
+    "image": "/products/58.webp"
+  },
+  {
+    "id": 59,
+    "name": "Glass",
+    "category": "Kitchen Accessories",
+    "price": 414,
+    "rating": "4.0",
+    "image": "/products/59.webp"
+  },
+  {
+    "id": 60,
+    "name": "Grater Black",
+    "category": "Kitchen Accessories",
+    "price": 912,
+    "rating": "3.2",
+    "image": "/products/60.webp"
+  },
+  {
+    "id": 61,
+    "name": "Hand Blender",
+    "category": "Kitchen Accessories",
+    "price": 2904,
+    "rating": "3.9",
+    "image": "/products/61.webp"
+  },
+  {
+    "id": 62,
+    "name": "Ice Cube Tray",
+    "category": "Kitchen Accessories",
+    "price": 497,
+    "rating": "4.7",
+    "image": "/products/62.webp"
+  },
+  {
+    "id": 63,
+    "name": "Kitchen Sieve",
+    "category": "Kitchen Accessories",
+    "price": 663,
+    "rating": "3.1",
+    "image": "/products/63.webp"
+  },
+  {
+    "id": 64,
+    "name": "Knife",
+    "category": "Kitchen Accessories",
+    "price": 1244,
+    "rating": "3.3",
+    "image": "/products/64.webp"
+  },
+  {
+    "id": 65,
+    "name": "Lunch Box",
+    "category": "Kitchen Accessories",
+    "price": 1078,
+    "rating": "4.9",
+    "image": "/products/65.webp"
+  },
+  {
+    "id": 66,
+    "name": "Microwave Oven",
+    "category": "Kitchen Accessories",
+    "price": 7469,
+    "rating": "4.8",
+    "image": "/products/66.webp"
+  },
+  {
+    "id": 67,
+    "name": "Mug Tree Stand",
+    "category": "Kitchen Accessories",
+    "price": 1327,
+    "rating": "2.6",
+    "image": "/products/67.webp"
+  },
+  {
+    "id": 68,
+    "name": "Pan",
+    "category": "Kitchen Accessories",
+    "price": 2074,
+    "rating": "2.8",
+    "image": "/products/68.webp"
+  },
+  {
+    "id": 69,
+    "name": "Plate",
+    "category": "Kitchen Accessories",
+    "price": 331,
+    "rating": "3.6",
+    "image": "/products/69.webp"
+  },
+  {
+    "id": 70,
+    "name": "Red Tongs",
+    "category": "Kitchen Accessories",
+    "price": 580,
+    "rating": "4.4",
+    "image": "/products/70.webp"
+  },
+  {
+    "id": 71,
+    "name": "Silver Pot With Glass Cap",
+    "category": "Kitchen Accessories",
+    "price": 3319,
+    "rating": "3.2",
+    "image": "/products/71.webp"
+  },
+  {
+    "id": 72,
+    "name": "Slotted Turner",
+    "category": "Kitchen Accessories",
+    "price": 746,
+    "rating": "3.4",
+    "image": "/products/72.webp"
+  },
+  {
+    "id": 73,
+    "name": "Spice Rack",
+    "category": "Kitchen Accessories",
+    "price": 1659,
+    "rating": "4.9",
+    "image": "/products/73.webp"
+  },
+  {
+    "id": 74,
+    "name": "Spoon",
+    "category": "Kitchen Accessories",
+    "price": 414,
+    "rating": "4.0",
+    "image": "/products/74.webp"
+  },
+  {
+    "id": 75,
+    "name": "Tray",
+    "category": "Kitchen Accessories",
+    "price": 1410,
+    "rating": "4.6",
+    "image": "/products/75.webp"
+  },
+  {
+    "id": 76,
+    "name": "Wooden Rolling Pin",
+    "category": "Kitchen Accessories",
+    "price": 995,
+    "rating": "2.9",
+    "image": "/products/76.webp"
+  },
+  {
+    "id": 77,
+    "name": "Yellow Peeler",
+    "category": "Kitchen Accessories",
+    "price": 497,
+    "rating": "4.2",
+    "image": "/products/77.webp"
+  },
+  {
+    "id": 78,
+    "name": "Apple MacBook Pro 14 Inch Space Grey",
+    "category": "Laptops",
+    "price": 165999,
+    "rating": "3.6",
+    "image": "/products/78.webp"
+  },
+  {
+    "id": 79,
+    "name": "Asus Zenbook Pro Dual Screen Laptop",
+    "category": "Laptops",
+    "price": 149399,
+    "rating": "4.0",
+    "image": "/products/79.webp"
+  },
+  {
+    "id": 80,
+    "name": "Huawei Matebook X Pro",
+    "category": "Laptops",
+    "price": 116199,
+    "rating": "5.0",
+    "image": "/products/80.webp"
+  },
+  {
+    "id": 81,
+    "name": "Lenovo Yoga 920",
+    "category": "Laptops",
+    "price": 91299,
+    "rating": "2.9",
+    "image": "/products/81.webp"
+  },
+  {
+    "id": 82,
+    "name": "New DELL XPS 13 9300 Laptop",
+    "category": "Laptops",
+    "price": 124499,
+    "rating": "2.7",
+    "image": "/products/82.webp"
+  },
+  {
+    "id": 83,
+    "name": "Blue & Black Check Shirt",
+    "category": "Mens Shirts",
+    "price": 2489,
+    "rating": "3.6",
+    "image": "/products/83.webp"
+  },
+  {
+    "id": 84,
+    "name": "Gigabyte Aorus Men Tshirt",
+    "category": "Mens Shirts",
+    "price": 2074,
+    "rating": "3.2",
+    "image": "/products/84.webp"
+  },
+  {
+    "id": 85,
+    "name": "Man Plaid Shirt",
+    "category": "Mens Shirts",
+    "price": 2904,
+    "rating": "3.5",
+    "image": "/products/85.webp"
+  },
+  {
+    "id": 86,
+    "name": "Man Short Sleeve Shirt",
+    "category": "Mens Shirts",
+    "price": 1659,
+    "rating": "2.9",
+    "image": "/products/86.webp"
+  },
+  {
+    "id": 87,
+    "name": "Men Check Shirt",
+    "category": "Mens Shirts",
+    "price": 2323,
+    "rating": "2.7",
+    "image": "/products/87.webp"
+  },
+  {
+    "id": 88,
+    "name": "Nike Air Jordan 1 Red And Black",
+    "category": "Mens Shoes",
+    "price": 12449,
+    "rating": "4.8",
+    "image": "/products/88.webp"
+  },
+  {
+    "id": 89,
+    "name": "Nike Baseball Cleats",
+    "category": "Mens Shoes",
+    "price": 6639,
+    "rating": "3.9",
+    "image": "/products/89.webp"
+  },
+  {
+    "id": 90,
+    "name": "Puma Future Rider Trainers",
+    "category": "Mens Shoes",
+    "price": 7469,
+    "rating": "4.9",
+    "image": "/products/90.webp"
+  },
+  {
+    "id": 91,
+    "name": "Sports Sneakers Off White & Red",
+    "category": "Mens Shoes",
+    "price": 9959,
+    "rating": "4.8",
+    "image": "/products/91.webp"
+  },
+  {
+    "id": 92,
+    "name": "Sports Sneakers Off White Red",
+    "category": "Mens Shoes",
+    "price": 9129,
+    "rating": "4.7",
+    "image": "/products/92.webp"
+  },
+  {
+    "id": 93,
+    "name": "Brown Leather Belt Watch",
+    "category": "Mens Watches",
+    "price": 7469,
+    "rating": "4.2",
+    "image": "/products/93.webp"
+  },
+  {
+    "id": 94,
+    "name": "Longines Master Collection",
+    "category": "Mens Watches",
+    "price": 124499,
+    "rating": "3.9",
+    "image": "/products/94.webp"
+  },
+  {
+    "id": 95,
+    "name": "Rolex Cellini Date Black Dial",
+    "category": "Mens Watches",
+    "price": 746999,
+    "rating": "5.0",
+    "image": "/products/95.webp"
+  },
+  {
+    "id": 96,
+    "name": "Rolex Cellini Moonphase",
+    "category": "Mens Watches",
+    "price": 1078999,
+    "rating": "2.6",
+    "image": "/products/96.webp"
+  },
+  {
+    "id": 97,
+    "name": "Rolex Datejust",
+    "category": "Mens Watches",
+    "price": 912999,
+    "rating": "3.7",
+    "image": "/products/97.webp"
+  },
+  {
+    "id": 98,
+    "name": "Rolex Submariner Watch",
+    "category": "Mens Watches",
+    "price": 1161999,
+    "rating": "2.7",
+    "image": "/products/98.webp"
+  },
+  {
+    "id": 99,
+    "name": "Amazon Echo Plus",
+    "category": "Mobile Accessories",
+    "price": 8299,
+    "rating": "5.0",
+    "image": "/products/99.webp"
+  },
+  {
+    "id": 100,
+    "name": "Apple Airpods",
+    "category": "Mobile Accessories",
+    "price": 10789,
+    "rating": "4.2",
+    "image": "/products/100.webp"
+  }
+]
