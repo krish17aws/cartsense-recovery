@@ -1,24 +1,8 @@
 import { ImageResponse } from "next/og";
-/* eslint-disable @next/next/no-img-element -- Satori renders remote cart thumbnails into the generated PNG */
 import { eq } from "drizzle-orm";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
-
-async function inlineImage(url?: string) {
-  if (!url) return undefined;
-  try {
-    const response = await fetch(url, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(5_000),
-    });
-    if (!response.ok) return undefined;
-    const contentType = response.headers.get("content-type") || "image/jpeg";
-    const bytes = Buffer.from(await response.arrayBuffer());
-    return `data:${contentType};base64,${bytes.toString("base64")}`;
-  } catch {
-    return undefined;
-  }
-}
+import { productAccent, productEmoji } from "../../../lib/product-visual";
 
 export async function GET(request: Request) {
   await ensureDb();
@@ -36,12 +20,7 @@ export async function GET(request: Request) {
     price: number;
     image?: string;
   }>;
-  const shown = await Promise.all(
-    items.slice(0, 5).map(async (item) => ({
-      ...item,
-      embeddedImage: await inlineImage(item.image),
-    })),
-  );
+  const shown = items.slice(0, 5);
   return new ImageResponse(
     <div
       style={{
@@ -92,15 +71,9 @@ export async function GET(request: Request) {
               fontSize: 24,
             }}
           >
-            {item.embeddedImage && (
-              <img
-                src={item.embeddedImage}
-                width="76"
-                height="58"
-                style={{ objectFit: "cover", borderRadius: 8, marginRight: 14 }}
-                alt=""
-              />
-            )}
+            <div style={{width:76,height:58,display:"flex",alignItems:"center",justifyContent:"center",borderRadius:8,marginRight:14,background:productAccent(item.name),fontSize:32}}>
+              {productEmoji(item.name)}
+            </div>
             <span>
               {`${item.name} × ${item.quantity}`}
             </span>

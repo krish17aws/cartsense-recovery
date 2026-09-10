@@ -251,7 +251,7 @@ const products = catalog.flatMap(([category, names], ci) =>
     category,
     price: 399 + (((ci * 10 + ni) * 337) % 7600),
     rating: (4.1 + ((ci + ni) % 8) / 10).toFixed(1),
-    image: `https://loremflickr.com/700/540/${encodeURIComponent(name.replaceAll(" ", ","))}?lock=${ci * 10 + ni + 301}`,
+    image: `/api/product-image?name=${encodeURIComponent(name)}&category=${encodeURIComponent(category)}`,
   })),
 );
 const money = (n: number) =>
