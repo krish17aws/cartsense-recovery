@@ -4,6 +4,22 @@ import { eq } from "drizzle-orm";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
 
+async function inlineImage(url?: string) {
+  if (!url) return undefined;
+  try {
+    const response = await fetch(url, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(5_000),
+    });
+    if (!response.ok) return undefined;
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    const bytes = Buffer.from(await response.arrayBuffer());
+    return `data:${contentType};base64,${bytes.toString("base64")}`;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function GET(request: Request) {
   await ensureDb();
   const userId = new URL(request.url).searchParams.get("userId");
@@ -20,7 +36,12 @@ export async function GET(request: Request) {
     price: number;
     image?: string;
   }>;
-  const shown = items.slice(0, 5);
+  const shown = await Promise.all(
+    items.slice(0, 5).map(async (item) => ({
+      ...item,
+      embeddedImage: await inlineImage(item.image),
+    })),
+  );
   return new ImageResponse(
     <div
       style={{
@@ -71,9 +92,9 @@ export async function GET(request: Request) {
               fontSize: 24,
             }}
           >
-            {item.image && (
+            {item.embeddedImage && (
               <img
-                src={item.image}
+                src={item.embeddedImage}
                 width="76"
                 height="58"
                 style={{ objectFit: "cover", borderRadius: 8, marginRight: 14 }}
@@ -112,6 +133,10 @@ export async function GET(request: Request) {
         </strong>
       </div>
     </div>,
-    { width: 1200, height: 1200, headers: { "Cache-Control": "no-store" } },
+    {
+      width: 1200,
+      height: 1200,
+      headers: { "Cache-Control": "no-store, max-age=0" },
+    },
   );
 }
