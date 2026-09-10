@@ -138,7 +138,7 @@ export async function POST(request: Request) {
     couponCode: welcomeEligible
       ? "WELCOME100"
       : cart.cartTotal >= 7000 && !isNew
-        ? `${cart.userId.toUpperCase()}20`
+        ? "RECOVER20"
         : "",
     confidence,
     reasoning: welcomeEligible

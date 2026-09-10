@@ -309,7 +309,7 @@ export default function Shop() {
         const savedItems = JSON.parse(saved.itemsJson) as Array<{id:number;quantity:number}>;
         setCart(Object.fromEntries(savedItems.map((item) => [item.id, item.quantity])));
         const analysis = saved.analysisJson ? JSON.parse(saved.analysisJson) as {couponCode?:string;couponPercent?:number;discountAmount?:number} : null;
-        const storedCode = analysis?.couponCode || (analysis?.couponPercent ? `${userId.toUpperCase()}20` : analysis?.discountAmount ? "WELCOME100" : "");
+        const storedCode = analysis?.couponCode || (analysis?.couponPercent ? "RECOVER20" : analysis?.discountAmount ? "WELCOME100" : "");
         if (couponCode && storedCode === couponCode && saved.status === "sent") {
           const offer = {code:couponCode,percent:Number(analysis?.couponPercent ?? 0),amount:Number(analysis?.discountAmount ?? 0)};
           setEligibleCoupon(offer);
