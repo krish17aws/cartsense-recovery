@@ -11,7 +11,7 @@ const products = sourceProducts.map((product, index) => ({
   category: product.category.split("-").map((word) => word[0].toUpperCase() + word.slice(1)).join(" "),
   price: Math.max(199, Math.round(Number(product.price) * 83)),
   rating: Number(product.rating).toFixed(1),
-  image: `/products/${index + 1}.webp`,
+  image: `/products/${index + 1}.png`,
   sourceImage: product.thumbnail,
 }));
 
@@ -31,9 +31,9 @@ async function download(product) {
   if (!response.ok) throw new Error(`${product.name}: HTTP ${response.status}`);
   const output = await sharp(Buffer.from(await response.arrayBuffer()))
     .resize(560, 420, { fit: "contain", background: "#eef5f1" })
-    .webp({ quality: 82 })
+    .png({ compressionLevel: 9 })
     .toBuffer();
-  await writeFile(path.join("public/products", `${product.id}.webp`), output);
+  await writeFile(path.join("public/products", `${product.id}.png`), output);
   process.stdout.write(`✓ ${product.id} ${product.name}\n`);
 }
 

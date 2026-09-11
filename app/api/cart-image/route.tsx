@@ -1,20 +1,18 @@
 import { ImageResponse } from "next/og";
 /* eslint-disable @next/next/no-img-element -- next/og requires a plain img element for embedded cart thumbnails */
 import { eq } from "drizzle-orm";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
 
-async function inlineProductImage(requestUrl: string, productId?: number) {
+async function inlineProductImage(productId?: number) {
   if (!productId) return undefined;
   try {
-    const imageUrl = new URL(`/products/${productId}.webp`, requestUrl);
-    const response = await fetch(imageUrl, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(5_000),
-    });
-    if (!response.ok) return undefined;
-    const bytes = Buffer.from(await response.arrayBuffer());
-    return `data:image/webp;base64,${bytes.toString("base64")}`;
+    const bytes = await readFile(
+      path.join(process.cwd(), "public", "products", `${productId}.png`),
+    );
+    return `data:image/png;base64,${bytes.toString("base64")}`;
   } catch {
     return undefined;
   }
@@ -40,7 +38,7 @@ export async function GET(request: Request) {
   const shown = await Promise.all(
     items.slice(0, 5).map(async (item) => ({
       ...item,
-      embeddedImage: await inlineProductImage(request.url, item.id),
+      embeddedImage: await inlineProductImage(item.id),
     })),
   );
   return new ImageResponse(

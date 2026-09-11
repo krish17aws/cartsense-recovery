@@ -245,7 +245,10 @@ const catalog = [
     "toy",
   ],
 ] as const;
-const products = productCatalog;
+const products = productCatalog.map((product) => ({
+  ...product,
+  image: `/products/${product.id}.png`,
+}));
 const productCategories = [
   ...new Set([
     ...products.map((product) => product.category),
