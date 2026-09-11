@@ -295,7 +295,11 @@ export default function Shop() {
   const change = (id: number, by: number) =>
     setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] || 0) + by) }));
   useEffect(() => {
-    const recovery = new URLSearchParams(window.location.search).get("recovery");
+    const params = new URLSearchParams(window.location.search);
+    const recovery = params.get("recovery") ||
+      (params.get("userId")
+        ? `${params.get("userId")}:${params.get("coupon") || ""}`
+        : "");
     if (!recovery) return;
     const [userId, couponCode = ""] = decodeURIComponent(recovery).split(":");
     const recoveredUser = users.find((candidate) => candidate.id === userId);

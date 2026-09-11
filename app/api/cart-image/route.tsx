@@ -1,22 +1,8 @@
 import { ImageResponse } from "next/og";
 /* eslint-disable @next/next/no-img-element -- next/og requires a plain img element for embedded cart thumbnails */
 import { eq } from "drizzle-orm";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
-
-async function inlineProductImage(productId?: number) {
-  if (!productId) return undefined;
-  try {
-    const bytes = await readFile(
-      path.join(process.cwd(), "public", "products", `${productId}.png`),
-    );
-    return `data:image/png;base64,${bytes.toString("base64")}`;
-  } catch {
-    return undefined;
-  }
-}
 
 export async function GET(request: Request) {
   await ensureDb();
@@ -35,12 +21,12 @@ export async function GET(request: Request) {
     price: number;
     image?: string;
   }>;
-  const shown = await Promise.all(
-    items.slice(0, 5).map(async (item) => ({
+  const shown = items.slice(0, 4).map((item) => ({
       ...item,
-      embeddedImage: await inlineProductImage(item.id),
-    })),
-  );
+      embeddedImage: item.id
+        ? new URL(`/products/${item.id}.png`, request.url).toString()
+        : undefined,
+    }));
   return new ImageResponse(
     <div
       style={{
@@ -50,7 +36,7 @@ export async function GET(request: Request) {
         flexDirection: "column",
         background: "#173d30",
         color: "white",
-        padding: "58px",
+        padding: "48px 54px",
         fontFamily: "sans-serif",
       }}
     >
@@ -68,15 +54,15 @@ export async function GET(request: Request) {
           {`${cart.itemCount} items`}
         </div>
       </div>
-      <div style={{ fontSize: 48, fontWeight: 700, marginTop: 28 }}>
+      <div style={{ fontSize: 45, fontWeight: 700, marginTop: 22 }}>
         {`${cart.customerName}'s cart is waiting`}
       </div>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 13,
-          marginTop: 30,
+          gap: 14,
+          marginTop: 24,
         }}
       >
         {shown.map((item, index) => (
@@ -85,22 +71,23 @@ export async function GET(request: Request) {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              padding: "13px 18px",
+              alignItems: "center",
+              padding: "14px 18px",
               background: "#234f40",
               borderRadius: 12,
-              fontSize: 24,
+              fontSize: 25,
             }}
           >
             {item.embeddedImage && (
               <img
                 src={item.embeddedImage}
-                width="76"
-                height="58"
-                style={{objectFit:"cover",borderRadius:8,marginRight:14}}
+                width="118"
+                height="88"
+                style={{objectFit:"contain",background:"#eef5f1",borderRadius:10,marginRight:18}}
                 alt=""
               />
             )}
-            <span>
+            <span style={{ flex: 1 }}>
               {`${item.name} × ${item.quantity}`}
             </span>
             <strong>
@@ -109,9 +96,9 @@ export async function GET(request: Request) {
           </div>
         ))}
       </div>
-      {items.length > 5 && (
+      {items.length > 4 && (
         <div style={{ fontSize: 20, color: "#b8d1c7", marginTop: 14 }}>
-          {`+ ${items.length - 5} more products`}
+          {`+ ${items.length - 4} more products`}
         </div>
       )}
       <div
@@ -121,7 +108,7 @@ export async function GET(request: Request) {
           alignItems: "flex-end",
           marginTop: "auto",
           borderTop: "2px solid #3a6556",
-          paddingTop: 24,
+          paddingTop: 19,
         }}
       >
         <span style={{ fontSize: 24, color: "#b8d1c7" }}>
@@ -134,7 +121,7 @@ export async function GET(request: Request) {
     </div>,
     {
       width: 1200,
-      height: 1200,
+      height: 800,
       headers: { "Cache-Control": "no-store, max-age=0" },
     },
   );
