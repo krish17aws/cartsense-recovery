@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   Brain,
@@ -178,6 +178,7 @@ export default function Overview() {
     [source, setSource] = useState(""),
     [loading, setLoading] = useState(false),
     [sending, setSending] = useState(false);
+  const selectedRef = useRef(selected);
   const current = items.find((i) => i.userId === selected) ?? items[3],
     pending = items.filter((i) => i.state === "approval").length;
   const flash = (s: string) => {
@@ -219,17 +220,28 @@ export default function Overview() {
           };
         }),
       );
-      const chosen = carts.find((c) => c.userId === selected);
-      if (!runAI && chosen?.analysisJson) {
-        setAnalysis(JSON.parse(chosen.analysisJson));
-        setSource(chosen.analysisSource ?? "");
+      const selectedUserId = selectedRef.current;
+      const chosen = carts.find((c) => c.userId === selectedUserId);
+      if (!runAI) {
+        if (chosen?.analysisJson) {
+          try {
+            setAnalysis(JSON.parse(chosen.analysisJson));
+            setSource(chosen.analysisSource ?? "");
+          } catch {
+            setAnalysis(null);
+            setSource("");
+          }
+        } else {
+          setAnalysis(null);
+          setSource("");
+        }
       }
       if (runAI) {
         if (chosen && chosen.itemCount > 0) {
           const analysisResponse = await fetch("/api/recovery-analysis", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: selected }),
+            body: JSON.stringify({ userId: selectedUserId }),
           });
           const result = (await analysisResponse.json()) as { analysis?: Analysis; source?: string; error?: string };
           if (!analysisResponse.ok || !result.analysis) throw new Error(result.error ?? "Analysis failed");
@@ -238,7 +250,7 @@ export default function Overview() {
           setSource(result.source ?? "policy_engine");
           setItems((xs) =>
             xs.map((x) =>
-              x.userId === selected
+              x.userId === selectedUserId
                 ? {
                     ...x,
                     offer: analysisResult.discountAmount
@@ -470,6 +482,7 @@ export default function Overview() {
                   key={i.id}
                   className={`activity-row ${selected === i.userId ? "selected" : ""}`}
                   onClick={() => {
+                    selectedRef.current = i.userId;
                     setSelected(i.userId);
                     const cart = cartRows.find((c) => c.userId === i.userId);
                     if (cart?.analysisJson) {
