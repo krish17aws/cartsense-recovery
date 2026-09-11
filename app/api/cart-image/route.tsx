@@ -3,6 +3,7 @@ import sharp from "sharp";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
 import productImages from "../../../data/product-images.json";
+import cartFont from "../../../data/cart-font.json";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,7 +64,11 @@ export async function GET(request: Request) {
     const svg = Buffer.from(`
       <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
         <style>
-          text { font-family: Arial, Helvetica, sans-serif; }
+          @font-face {
+            font-family: Poppins;
+            src: url(data:font/ttf;base64,${cartFont.poppins}) format('truetype');
+          }
+          text { font-family: Poppins, sans-serif; }
           .brand { font-size: 23px; font-weight: 700; letter-spacing: 4px; fill: #d8f56f; }
           .count { font-size: 22px; fill: #b8d1c7; }
           .title { font-size: 43px; font-weight: 700; fill: white; }
@@ -85,17 +90,24 @@ export async function GET(request: Request) {
         ${overflow}
       </svg>`);
 
-    const overlays = items.flatMap((item, index) => {
-      if (!item.id) return [];
+    const overlays = (await Promise.all(items.map(async (item, index) => {
+      if (!item.id) return null;
       const dataUri = productImages[String(item.id) as keyof typeof productImages];
-      if (!dataUri) return [];
+      if (!dataUri) return null;
       const encoded = dataUri.split(",")[1];
-      return [{
-        input: Buffer.from(encoded, "base64"),
+      const thumbnail = await sharp(Buffer.from(encoded, "base64"))
+        .resize(thumbnailSize, thumbnailSize, {
+          fit: "contain",
+          background: "#eef5f1",
+        })
+        .jpeg({ quality: 82 })
+        .toBuffer();
+      return {
+        input: thumbnail,
         left: thumbnailX,
         top: rowStart + index * (rowHeight + rowGap) + 12,
-      }];
-    });
+      };
+    }))).filter((overlay) => overlay !== null);
 
     const output = await sharp(svg).composite(overlays).png().toBuffer();
     return new Response(new Uint8Array(output), {

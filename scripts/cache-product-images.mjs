@@ -50,3 +50,10 @@ const embeddedImages = Object.fromEntries(await Promise.all(products.map(async (
   return [product.id, `data:image/jpeg;base64,${thumbnail.toString("base64")}`];
 })));
 await writeFile("data/product-images.json", JSON.stringify(embeddedImages));
+
+const fontPath = process.env.CART_FONT_FILE ||
+  "/workspace/scratch/97f16ec8b96a/dummyjson-source/fonts/poppins.ttf";
+const font = await readFile(fontPath);
+await writeFile("data/cart-font.json", JSON.stringify({
+  poppins: font.toString("base64"),
+}));
