@@ -36,8 +36,11 @@ export async function sendCartWhatsApp(cart:CartMessage, options:{message?:strin
         ? `Your ₹${analysis.discountAmount} welcome offer is ready.`
         : null
     : null;
-  const message = options.message ?? approvedOffer ?? (options.removeCoupon ? null : analysis?.reasoning) ?? "Your cart is still waiting. Complete your purchase before the items are gone.";
-  const couponLine = appliedCoupon ? `Coupon: ${appliedCoupon}` : "No coupon applied";
+  const message = approvedOffer ??
+    "We saved your selected items for a limited time.";
+  const couponLine = appliedCoupon
+    ? `Coupon: ${appliedCoupon}`
+    : "Your cart is ready to continue.";
   const imageUrl = `${baseUrl}/api/cart-image?userId=${encodeURIComponent(cart.userId)}&v=${Date.now()}`;
   const payload = { messaging_product:"whatsapp", to:recipient, type:"template", template:{ name:template, language:{code:language}, components:[
     {type:"header",parameters:[{type:"image",image:{link:imageUrl}}]},

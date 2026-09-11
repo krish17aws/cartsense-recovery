@@ -3,6 +3,7 @@ import { ImageResponse } from "next/og";
 import { eq } from "drizzle-orm";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
+import productImages from "../../../data/product-images.json";
 
 export async function GET(request: Request) {
   await ensureDb();
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
   const shown = items.slice(0, 4).map((item) => ({
       ...item,
       embeddedImage: item.id
-        ? new URL(`/products/${item.id}.png`, request.url).toString()
+        ? productImages[String(item.id) as keyof typeof productImages]
         : undefined,
     }));
   return new ImageResponse(
@@ -36,7 +37,7 @@ export async function GET(request: Request) {
         flexDirection: "column",
         background: "#173d30",
         color: "white",
-        padding: "48px 54px",
+        padding: "40px 48px",
         fontFamily: "sans-serif",
       }}
     >
@@ -54,15 +55,15 @@ export async function GET(request: Request) {
           {`${cart.itemCount} items`}
         </div>
       </div>
-      <div style={{ fontSize: 45, fontWeight: 700, marginTop: 22 }}>
+      <div style={{ fontSize: 43, fontWeight: 700, marginTop: 18 }}>
         {`${cart.customerName}'s cart is waiting`}
       </div>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: 14,
-          marginTop: 24,
+          gap: 12,
+          marginTop: 20,
         }}
       >
         {shown.map((item, index) => (
@@ -72,17 +73,17 @@ export async function GET(request: Request) {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: "14px 18px",
+              padding: "12px 16px",
               background: "#234f40",
               borderRadius: 12,
-              fontSize: 25,
+              fontSize: 27,
             }}
           >
             {item.embeddedImage && (
               <img
                 src={item.embeddedImage}
-                width="118"
-                height="88"
+                width="132"
+                height="98"
                 style={{objectFit:"contain",background:"#eef5f1",borderRadius:10,marginRight:18}}
                 alt=""
               />
@@ -108,7 +109,7 @@ export async function GET(request: Request) {
           alignItems: "flex-end",
           marginTop: "auto",
           borderTop: "2px solid #3a6556",
-          paddingTop: 19,
+          paddingTop: 15,
         }}
       >
         <span style={{ fontSize: 24, color: "#b8d1c7" }}>
@@ -121,7 +122,7 @@ export async function GET(request: Request) {
     </div>,
     {
       width: 1200,
-      height: 800,
+      height: 680,
       headers: { "Cache-Control": "no-store, max-age=0" },
     },
   );

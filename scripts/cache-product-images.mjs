@@ -40,3 +40,13 @@ async function download(product) {
 for (let index = 0; index < products.length; index += 20) {
   await Promise.all(products.slice(index, index + 20).map(download));
 }
+
+const embeddedImages = Object.fromEntries(await Promise.all(products.map(async (product) => {
+  const source = await readFile(path.join("public/products", `${product.id}.png`));
+  const thumbnail = await sharp(source)
+    .resize(180, 135, { fit: "contain", background: "#eef5f1" })
+    .jpeg({ quality: 78 })
+    .toBuffer();
+  return [product.id, `data:image/jpeg;base64,${thumbnail.toString("base64")}`];
+})));
+await writeFile("data/product-images.json", JSON.stringify(embeddedImages));
