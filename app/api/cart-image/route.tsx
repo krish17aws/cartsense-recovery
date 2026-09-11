@@ -80,7 +80,7 @@ export async function renderCartCreative(cart: CartCreative) {
   </svg>`);
 
   const overlays: OverlayOptions[] = [
-    textOverlay("CARTSENSE RECOVERY", 48, 34, 620, 38, 23, "#d8f56f", "bold"),
+    textOverlay("CARTSENSE ", 48, 34, 620, 38, 23, "#d8f56f", "bold"),
     textOverlay(`${cart.itemCount} ${cart.itemCount === 1 ? "item" : "items"}`, 902, 34, 250, 38, 21, "#b8d1c7", "normal", "right"),
     textOverlay(`${cart.customerName}'s cart is waiting`, 48, 84, 1104, 56, 42, "#ffffff", "bold"),
     textOverlay("Complete your purchase", 48, totalY + 30, 500, 42, 21, "#b8d1c7"),
