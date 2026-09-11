@@ -1,120 +1,157 @@
 import { eq } from "drizzle-orm";
-import sharp from "sharp";
+import { writeFile } from "node:fs/promises";
+import sharp, { type OverlayOptions } from "sharp";
 import { ensureDb, getDb } from "../../../db";
 import { cartSnapshots } from "../../../db/schema";
-import productImages from "../../../data/product-images.json";
 import cartFont from "../../../data/cart-font.json";
+import productImages from "../../../data/product-images.json";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type CartItem = {
-  id?: number;
-  name: string;
-  quantity: number;
-  price: number;
+type CartItem = { id?: number; name: string; quantity: number; price: number };
+type CartCreative = {
+  customerName: string;
+  itemCount: number;
+  cartTotal: number;
+  items: CartItem[];
 };
 
-const escapeXml = (value: string) => value
+const FONT_PATH = "/tmp/cartsense-poppins.ttf";
+const escapeMarkup = (value: string) => value
   .replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;")
   .replaceAll(">", "&gt;")
   .replaceAll('"', "&quot;")
   .replaceAll("'", "&apos;");
-
 const money = (value: number) => `₹${value.toLocaleString("en-IN")}`;
+
+function textOverlay(
+  text: string,
+  left: number,
+  top: number,
+  width: number,
+  height: number,
+  size: number,
+  color: string,
+  weight: "normal" | "bold" = "normal",
+  align: "left" | "right" = "left",
+): OverlayOptions {
+  return {
+    input: {
+      text: {
+        text: `<span foreground="${color}" font_weight="${weight}" font_size="${size * 1024}">${escapeMarkup(text)}</span>`,
+        font: "Poppins",
+        fontfile: FONT_PATH,
+        width,
+        height,
+        align,
+        rgba: true,
+        wrap: "none",
+      },
+    },
+    left,
+    top,
+  };
+}
+
+export async function renderCartCreative(cart: CartCreative) {
+  await writeFile(FONT_PATH, Buffer.from(cartFont.poppins, "base64"));
+
+  const items = cart.items.slice(0, 4);
+  const width = 1200;
+  const rowStart = 154;
+  const rowHeight = 116;
+  const rowGap = 12;
+  const thumbX = 66;
+  const thumbSize = 92;
+  const totalY = rowStart + items.length * (rowHeight + rowGap) + 12;
+  const height = Math.max(460, totalY + 92 + (cart.items.length > 4 ? 30 : 0));
+
+  const rowShapes = items.map((_, index) => {
+    const y = rowStart + index * (rowHeight + rowGap);
+    return `<rect x="48" y="${y}" width="1104" height="${rowHeight}" rx="18" fill="#245643"/>
+      <rect x="${thumbX}" y="${y + 12}" width="${thumbSize}" height="${thumbSize}" rx="14" fill="#eef5f1"/>`;
+  }).join("");
+  const background = Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${width}" height="${height}" fill="#173d30"/>
+    ${rowShapes}
+    <line x1="48" y1="${totalY}" x2="1152" y2="${totalY}" stroke="#47705f" stroke-width="2"/>
+  </svg>`);
+
+  const overlays: OverlayOptions[] = [
+    textOverlay("CARTSENSE RECOVERY", 48, 34, 620, 38, 23, "#d8f56f", "bold"),
+    textOverlay(`${cart.itemCount} ${cart.itemCount === 1 ? "item" : "items"}`, 902, 34, 250, 38, 21, "#b8d1c7", "normal", "right"),
+    textOverlay(`${cart.customerName}'s cart is waiting`, 48, 84, 1104, 56, 42, "#ffffff", "bold"),
+    textOverlay("Complete your purchase", 48, totalY + 30, 500, 42, 21, "#b8d1c7"),
+    textOverlay(money(cart.cartTotal), 802, totalY + 20, 350, 58, 44, "#d8f56f", "bold", "right"),
+  ];
+
+  for (const [index, item] of items.entries()) {
+    const y = rowStart + index * (rowHeight + rowGap);
+    if (item.id) {
+      const dataUri = productImages[String(item.id) as keyof typeof productImages];
+      if (dataUri) {
+        const thumbnail = await sharp(Buffer.from(dataUri.split(",")[1], "base64"))
+          .resize(thumbSize, thumbSize, { fit: "contain", background: "#eef5f1" })
+          .jpeg({ quality: 84 })
+          .toBuffer();
+        overlays.push({ input: thumbnail, left: thumbX, top: y + 12 });
+      }
+    }
+    overlays.push(
+      textOverlay(item.name, 180, y + 21, 680, 42, 27, "#ffffff", "bold"),
+      textOverlay(`Quantity ${item.quantity}`, 180, y + 67, 400, 30, 19, "#bcd3ca"),
+      textOverlay(money(item.price * item.quantity), 884, y + 38, 234, 42, 28, "#f4f8f6", "bold", "right"),
+    );
+  }
+
+  if (cart.items.length > 4) {
+    overlays.push(textOverlay(
+      `+ ${cart.items.length - 4} more products in your cart`,
+      48,
+      height - 28,
+      600,
+      24,
+      17,
+      "#b8d1c7",
+    ));
+  }
+
+  return sharp(background).composite(overlays).png().toBuffer();
+}
 
 export async function GET(request: Request) {
   try {
+    const requestUrl = new URL(request.url);
+    if (process.env.NODE_ENV !== "production" && requestUrl.searchParams.get("preview") === "1") {
+      const output = await renderCartCreative({
+        customerName: "Karthik Kumar",
+        itemCount: 3,
+        cartTotal: 3981,
+        items: [
+          { id: 2, name: "Eyeshadow Palette with Mirror", quantity: 1, price: 1659 },
+          { id: 3, name: "Powder Canister", quantity: 1, price: 1244 },
+          { id: 4, name: "Red Lipstick", quantity: 1, price: 1078 },
+        ],
+      });
+      return new Response(new Uint8Array(output), { headers: { "Content-Type": "image/png" } });
+    }
     await ensureDb();
-    const userId = new URL(request.url).searchParams.get("userId");
+    const userId = requestUrl.searchParams.get("userId");
     if (!userId) return new Response("userId required", { status: 400 });
-
-    const [cart] = await getDb()
-      .select()
-      .from(cartSnapshots)
-      .where(eq(cartSnapshots.userId, userId))
-      .limit(1);
+    const [cart] = await getDb().select().from(cartSnapshots)
+      .where(eq(cartSnapshots.userId, userId)).limit(1);
     if (!cart) return new Response("Cart not found", { status: 404 });
 
-    const items = (JSON.parse(cart.itemsJson) as CartItem[]).slice(0, 4);
-    const width = 1200;
-    const rowHeight = 112;
-    const rowGap = 12;
-    const rowStart = 166;
-    const thumbnailX = 66;
-    const thumbnailSize = 88;
-
-    const rows = items.map((item, index) => {
-      const y = rowStart + index * (rowHeight + rowGap);
-      return `
-        <rect x="48" y="${y}" width="1104" height="${rowHeight}" rx="18" fill="#245643"/>
-        <rect x="${thumbnailX}" y="${y + 12}" width="${thumbnailSize}" height="${thumbnailSize}" rx="14" fill="#eef5f1"/>
-        <text x="176" y="${y + 49}" class="item">${escapeXml(item.name)}</text>
-        <text x="176" y="${y + 78}" class="quantity">Quantity ${item.quantity}</text>
-        <text x="1118" y="${y + 64}" text-anchor="end" class="price">${money(item.price * item.quantity)}</text>`;
-    }).join("");
-
-    const allItems = JSON.parse(cart.itemsJson) as CartItem[];
-    const totalY = rowStart + items.length * (rowHeight + rowGap) + 10;
-    const height = Math.max(460, totalY + 90 + (allItems.length > 4 ? 30 : 0));
-    const overflow = allItems.length > 4
-      ? `<text x="52" y="${height - 18}" class="more">+ ${allItems.length - 4} more products in your cart</text>`
-      : "";
-    const svg = Buffer.from(`
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        <style>
-          @font-face {
-            font-family: Poppins;
-            src: url(data:font/ttf;base64,${cartFont.poppins}) format('truetype');
-          }
-          text { font-family: Poppins, sans-serif; }
-          .brand { font-size: 23px; font-weight: 700; letter-spacing: 4px; fill: #d8f56f; }
-          .count { font-size: 22px; fill: #b8d1c7; }
-          .title { font-size: 43px; font-weight: 700; fill: white; }
-          .item { font-size: 28px; font-weight: 700; fill: white; }
-          .quantity { font-size: 19px; fill: #bcd3ca; }
-          .price { font-size: 29px; font-weight: 700; fill: #f4f8f6; }
-          .label { font-size: 21px; fill: #b8d1c7; }
-          .total { font-size: 46px; font-weight: 700; fill: #d8f56f; }
-          .more { font-size: 18px; fill: #b8d1c7; }
-        </style>
-        <rect width="1200" height="${height}" fill="#173d30"/>
-        <text x="48" y="53" class="brand">CARTSENSE RECOVERY</text>
-        <text x="1152" y="53" text-anchor="end" class="count">${cart.itemCount} ${cart.itemCount === 1 ? "item" : "items"}</text>
-        <text x="48" y="122" class="title">${escapeXml(cart.customerName)}&apos;s cart is waiting</text>
-        ${rows}
-        <line x1="48" y1="${totalY}" x2="1152" y2="${totalY}" stroke="#47705f" stroke-width="2"/>
-        <text x="48" y="${totalY + 58}" class="label">Complete your purchase</text>
-        <text x="1152" y="${totalY + 63}" text-anchor="end" class="total">${money(cart.cartTotal)}</text>
-        ${overflow}
-      </svg>`);
-
-    const overlays = (await Promise.all(items.map(async (item, index) => {
-      if (!item.id) return null;
-      const dataUri = productImages[String(item.id) as keyof typeof productImages];
-      if (!dataUri) return null;
-      const encoded = dataUri.split(",")[1];
-      const thumbnail = await sharp(Buffer.from(encoded, "base64"))
-        .resize(thumbnailSize, thumbnailSize, {
-          fit: "contain",
-          background: "#eef5f1",
-        })
-        .jpeg({ quality: 82 })
-        .toBuffer();
-      return {
-        input: thumbnail,
-        left: thumbnailX,
-        top: rowStart + index * (rowHeight + rowGap) + 12,
-      };
-    }))).filter((overlay) => overlay !== null);
-
-    const output = await sharp(svg).composite(overlays).png().toBuffer();
+    const output = await renderCartCreative({
+      customerName: cart.customerName,
+      itemCount: cart.itemCount,
+      cartTotal: cart.cartTotal,
+      items: JSON.parse(cart.itemsJson) as CartItem[],
+    });
     return new Response(new Uint8Array(output), {
-      headers: {
-        "Content-Type": "image/png",
-        "Cache-Control": "no-store, max-age=0",
-      },
+      headers: { "Content-Type": "image/png", "Cache-Control": "no-store, max-age=0" },
     });
   } catch (error) {
     console.error("Cart image generation failed", error);
