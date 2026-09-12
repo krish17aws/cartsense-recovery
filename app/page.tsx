@@ -270,10 +270,10 @@ export default function Overview() {
             ),
           );
           flash(
-            result.source === "gemini"
-              ? `Gemini analysed ${current.name}’s live cart`
-              : "Policy analysis completed · check the server terminal for any Gemini error",
-          );
+  result.source === "gemini"
+    ? `AI analysed ${current.name}’s live cart`
+    : `Recovery analysis completed for ${current.name}`,
+);
         } else flash(`Add items to ${current.name}’s cart first`);
       }
     } catch (error) {
