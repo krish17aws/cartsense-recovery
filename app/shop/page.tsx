@@ -269,6 +269,7 @@ export default function Shop() {
     [category, setCategory] = useState("All"),
     [open, setOpen] = useState(false),
     [ordered, setOrdered] = useState(false),
+    [checkingOut, setCheckingOut] = useState(false),
     [page, setPage] = useState(1),
     [couponInput, setCouponInput] = useState(""),
     [eligibleCoupon, setEligibleCoupon] = useState<{code:string;percent:number;amount:number}|null>(null),
@@ -295,6 +296,26 @@ export default function Shop() {
   const payable = Math.max(0, total - discount);
   const change = (id: number, by: number) =>
     setCart((c) => ({ ...c, [id]: Math.max(0, (c[id] || 0) + by) }));
+  const completePurchase = async () => {
+    if (!user || !count || checkingOut) return;
+    setCheckingOut(true);
+    setCouponMessage("");
+    try {
+      const response = await fetch("/api/cart-snapshots", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, status: "recovered" }),
+      });
+      const result = await response.json() as { recovered?: boolean; error?: string };
+      if (!response.ok || !result.recovered)
+        throw new Error(result.error ?? "Unable to complete purchase");
+      setOrdered(true);
+    } catch (error) {
+      setCouponMessage(error instanceof Error ? error.message : "Unable to complete purchase");
+    } finally {
+      setCheckingOut(false);
+    }
+  };
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const recovery = params.get("recovery") ||
@@ -319,7 +340,7 @@ export default function Shop() {
         const storedCode = analysis?.couponCode || (analysis?.couponPercent ? "RECOVER20" : analysis?.discountAmount ? "WELCOME100" : "");
         const requestedCode = couponCode.trim().toUpperCase();
         const approvedCode = storedCode.trim().toUpperCase();
-        if (approvedCode && saved.status === "sent" && (!requestedCode || requestedCode === approvedCode)) {
+        if (approvedCode && (!requestedCode || requestedCode === approvedCode)) {
           const offer = {code:approvedCode,percent:Number(analysis?.couponPercent ?? 0),amount:Number(analysis?.discountAmount ?? 0)};
           setEligibleCoupon(offer);
           setCouponInput(approvedCode);
@@ -632,10 +653,10 @@ export default function Shop() {
                 </div>
                 <button
                   className="checkout"
-                  disabled={!count}
-                  onClick={() => setOrdered(true)}
+                  disabled={!count || checkingOut}
+                  onClick={() => void completePurchase()}
                 >
-                  Proceed to checkout
+                  {checkingOut ? "Completing purchase…" : "Proceed to checkout"}
                 </button>
               </>
             )}

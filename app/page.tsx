@@ -180,7 +180,11 @@ export default function Overview() {
     [sending, setSending] = useState(false);
   const selectedRef = useRef(selected);
   const current = items.find((i) => i.userId === selected) ?? items[3],
-    pending = items.filter((i) => i.state === "approval").length;
+    pending = cartRows.filter((cart) => cart.status === "approval_required").length,
+    newlyRecoveredRevenue = cartRows
+      .filter((cart) => cart.status === "recovered")
+      .reduce((sum, cart) => sum + cart.cartTotal, 0),
+    recoveredRevenue = 184320 + newlyRecoveredRevenue;
   const flash = (s: string) => {
     setNotice(s);
     setTimeout(() => setNotice(""), 3000);
@@ -210,9 +214,13 @@ export default function Overview() {
                 ? "approval"
                 : cart.status === "ready_to_send"
                   ? "auto"
-                  : "active",
+                  : cart.status === "sent" || cart.status === "recovered"
+                    ? "sent"
+                    : "active",
             time:
-              cart.itemCount === 0
+              cart.status === "recovered"
+                ? "Purchase recovered"
+                : cart.itemCount === 0
                 ? "Cart empty"
                 : hours >= 3
                   ? "3-hour limit exceeded"
@@ -248,6 +256,20 @@ export default function Overview() {
           const analysisResult = result.analysis;
           setAnalysis(analysisResult);
           setSource(result.source ?? "policy_engine");
+          setCartRows((rows) =>
+            rows.map((row) =>
+              row.userId === selectedUserId
+                ? {
+                    ...row,
+                    status: analysisResult.requiresApproval
+                      ? "approval_required"
+                      : "ready_to_send",
+                    analysisJson: JSON.stringify(analysisResult),
+                    analysisSource: result.source ?? "policy_engine",
+                  }
+                : row,
+            ),
+          );
           setItems((xs) =>
             xs.map((x) =>
               x.userId === selectedUserId
@@ -271,8 +293,8 @@ export default function Overview() {
           );
           flash(
             result.source === "gemini"
-              ? `Gemini analysed ${current.name}’s live cart`
-              : "Policy analysis completed · check the server terminal for any Gemini error",
+              ? `AI analysed ${current.name}’s live cart`
+              : `Recovery analysis completed for ${current.name}`,
           );
         } else flash(`Add items to ${current.name}’s cart first`);
       }
@@ -324,6 +346,11 @@ export default function Overview() {
       };
       if (!response.ok) throw new Error(result.error ?? "Unable to send");
       decide(!removeCoupon);
+      setCartRows((rows) =>
+        rows.map((row) =>
+          row.userId === selected ? { ...row, status: "sent" } : row,
+        ),
+      );
       flash(`WhatsApp message sent to the configured test recipient`);
     } catch (error) {
       flash(error instanceof Error ? error.message : "WhatsApp send failed");
@@ -417,7 +444,7 @@ export default function Overview() {
         <section className="metrics">
           <Metric
             label="Revenue recovered"
-            value="₹1,84,320"
+            value={money(recoveredRevenue)}
             note="This month"
             icon={<CircleDollarSign />}
           />
