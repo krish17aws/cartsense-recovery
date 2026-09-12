@@ -60,3 +60,27 @@ export async function POST(request: Request) {
     .onConflictDoUpdate({ target: cartSnapshots.userId, set: values });
   return Response.json({ saved: true, cartChanged });
 }
+
+export async function PATCH(request: Request) {
+  await ensureDb();
+  const body = (await request.json()) as { userId?: string; status?: string };
+  const userId = String(body.userId ?? "").trim();
+  const status = String(body.status ?? "").trim();
+  if (!userId) return Response.json({ error: "userId required" }, { status: 400 });
+  if (status !== "recovered")
+    return Response.json({ error: "Unsupported cart status" }, { status: 400 });
+  const db = getDb();
+  const [existing] = await db
+    .select()
+    .from(cartSnapshots)
+    .where(eq(cartSnapshots.userId, userId))
+    .limit(1);
+  if (!existing) return Response.json({ error: "cart not found" }, { status: 404 });
+  if (existing.itemCount <= 0)
+    return Response.json({ error: "cart is empty" }, { status: 400 });
+  await db
+    .update(cartSnapshots)
+    .set({ status: "recovered", updatedAt: new Date().toISOString() })
+    .where(eq(cartSnapshots.userId, userId));
+  return Response.json({ recovered: true, cartTotal: existing.cartTotal });
+}
