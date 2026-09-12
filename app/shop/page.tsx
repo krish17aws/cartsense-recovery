@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- catalogue images are dynamic remote demo assets */
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import productCatalog from "../../data/product-catalog.json";
 import {
   ArrowRight,
@@ -274,6 +274,7 @@ export default function Shop() {
     [eligibleCoupon, setEligibleCoupon] = useState<{code:string;percent:number;amount:number}|null>(null),
     [appliedCoupon, setAppliedCoupon] = useState<{code:string;percent:number;amount:number}|null>(null),
     [couponMessage, setCouponMessage] = useState("");
+  const skipRestoredCartSave = useRef(false);
   const perPage = 20;
   const filtered = products.filter(
     (p) =>
@@ -310,15 +311,22 @@ export default function Shop() {
         if (!response.ok) throw new Error(data.error ?? "Unable to restore cart");
         const saved = data.carts?.find((row) => row.userId === userId);
         if (!saved) throw new Error("Saved recovery cart not found");
+        skipRestoredCartSave.current = true;
         setUser(recoveredUser);
         const savedItems = JSON.parse(saved.itemsJson) as Array<{id:number;quantity:number}>;
         setCart(Object.fromEntries(savedItems.map((item) => [item.id, item.quantity])));
         const analysis = saved.analysisJson ? JSON.parse(saved.analysisJson) as {couponCode?:string;couponPercent?:number;discountAmount?:number} : null;
         const storedCode = analysis?.couponCode || (analysis?.couponPercent ? "RECOVER20" : analysis?.discountAmount ? "WELCOME100" : "");
-        if (couponCode && storedCode === couponCode && saved.status === "sent") {
-          const offer = {code:couponCode,percent:Number(analysis?.couponPercent ?? 0),amount:Number(analysis?.discountAmount ?? 0)};
+        const requestedCode = couponCode.trim().toUpperCase();
+        const approvedCode = storedCode.trim().toUpperCase();
+        if (approvedCode && saved.status === "sent" && (!requestedCode || requestedCode === approvedCode)) {
+          const offer = {code:approvedCode,percent:Number(analysis?.couponPercent ?? 0),amount:Number(analysis?.discountAmount ?? 0)};
           setEligibleCoupon(offer);
-          setCouponInput(couponCode);
+          setCouponInput(approvedCode);
+          setAppliedCoupon(offer);
+          setCouponMessage("Coupon applied automatically from your recovery link");
+        } else if (requestedCode) {
+          setCouponMessage("Coupon is invalid, expired or not approved for this customer");
         }
         setOpen(true);
       })
@@ -326,6 +334,10 @@ export default function Shop() {
   }, []);
   useEffect(() => {
     if (!user) return;
+    if (skipRestoredCartSave.current) {
+      skipRestoredCartSave.current = false;
+      return;
+    }
     const items = products
       .filter((p) => cart[p.id])
       .map((p) => ({
